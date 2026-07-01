@@ -1,0 +1,9 @@
+[project]
+name = "aps-professional-suite"
+version = "0.0.1"
+description = "APS Professional Suite Enterprise Operating System"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
