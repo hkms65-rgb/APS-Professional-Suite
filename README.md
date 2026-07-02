@@ -22,8 +22,8 @@ APS is being evolved toward Build 10.0.0 through verified implementation increme
 - Environment-backed runtime configuration
 - SQLite database persistence foundation
 - Versioned database migration runner
-- Repository-backed CRM, Finance, Warehouse, Procurement, and HR services
-- Persistent CRM, Finance, Warehouse, and Procurement API wiring
+- Repository-backed CRM, Finance, Warehouse, Procurement, HR, and Real Estate services
+- Persistent CRM, Finance, Warehouse, Procurement, and Real Estate API wiring
 - HR repository and service persistence implemented; HR API wiring pending after connector safety block
 
 ## Runtime configuration
