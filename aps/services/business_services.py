@@ -58,13 +58,25 @@ class WarehouseService:
 
 
 class ManufacturingService:
-    def __init__(self):
+    def __init__(self, repository=None):
+        self.repository = repository
         self.orders = []
 
     def create_order(self, product, quantity):
+        if self.repository is not None:
+            record = self.repository.create_order(str(product), quantity)
+            return {'id': record.id, 'product': record.item, 'quantity': record.quantity, 'status': record.status}
         order = {'product': product, 'quantity': quantity, 'status': 'planned'}
         self.orders.append(order)
         return order
+
+    def list_orders(self):
+        if self.repository is not None:
+            return [
+                {'id': record.id, 'product': record.item, 'quantity': record.quantity, 'status': record.status}
+                for record in self.repository.list_orders()
+            ]
+        return list(self.orders)
 
 
 class ProcurementService:
