@@ -15,6 +15,7 @@ from aps.services import (
     CRMService,
 )
 from aps.storage import CRMRepository, Database, DatabaseConfig, FinanceRepository
+from aps.storage.warehouse_repository import WarehouseRepository
 
 
 config = RuntimeConfig.from_env()
@@ -30,7 +31,7 @@ database.initialize()
 
 finance = FinanceService(FinanceRepository(database))
 hr = HRService()
-wh = WarehouseService()
+wh = WarehouseService(WarehouseRepository(database))
 mfg = ManufacturingService()
 proc = ProcurementService()
 ai = AIStudioService()
