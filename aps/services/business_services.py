@@ -19,15 +19,21 @@ class FinanceService:
 
 
 class HRService:
-    def __init__(self):
+    def __init__(self, repository=None):
+        self.repository = repository
         self.employees = []
 
     def add_employee(self, full_name, role):
+        if self.repository is not None:
+            employee = self.repository.add_employee(full_name, role)
+            return {'id': employee.id, 'full_name': employee.full_name, 'role': employee.role}
         employee = {'full_name': full_name, 'role': role}
         self.employees.append(employee)
         return employee
 
     def headcount(self):
+        if self.repository is not None:
+            return self.repository.headcount()
         return len(self.employees)
 
 
