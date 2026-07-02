@@ -62,13 +62,25 @@ class ManufacturingService:
 
 
 class ProcurementService:
-    def __init__(self):
+    def __init__(self, repository=None):
+        self.repository = repository
         self.rfqs = []
 
     def create_rfq(self, title, category):
+        if self.repository is not None:
+            record = self.repository.create_rfq(title, category)
+            return {'id': record.id, 'title': record.title, 'category': record.category, 'status': record.status}
         rfq = {'title': title, 'category': category, 'status': 'open'}
         self.rfqs.append(rfq)
         return rfq
+
+    def list_rfqs(self):
+        if self.repository is not None:
+            return [
+                {'id': record.id, 'title': record.title, 'category': record.category, 'status': record.status}
+                for record in self.repository.list_rfqs()
+            ]
+        return list(self.rfqs)
 
 
 class AIStudioService:
