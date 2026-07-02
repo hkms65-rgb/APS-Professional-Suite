@@ -1,3 +1,2 @@
 # Architecture Overview
-
-APS is structured around an Enterprise Kernel, Platform Runtime, and modular domain services.
+APS combines Enterprise Kernel, FastAPI service layer, modular business services and static application shell.

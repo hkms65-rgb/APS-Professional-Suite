@@ -1,25 +1,19 @@
 # APS Professional Suite
 
-APS Professional Suite is an Enterprise Operating System.
+Build 0.3.0 expands APS into a larger Enterprise Operating System foundation.
 
-## Build 0.2.0
-
-This build adds:
-- Enterprise Kernel
-- Platform Runtime
-- SQLite persistence
-- Identity model
-- Organization model
-- Real Estate & Facilities service/API
-- CRM service/API
-- Market Intelligence app integration
-- FastAPI backend
-- Static command center
-- Engineering docs
+## Added in 0.3.0
+- Authentication service
+- Policy engine
+- Workflow engine
+- Notification center
+- Document manager
+- Integration hub
+- Finance, HR, Warehouse, Manufacturing, Procurement, and AI Studio services
+- Expanded FastAPI API routes
 - Tests and validation
 
 ## Run
-
 ```bash
 pip install -e . pytest fastapi uvicorn
 python -m pytest tests -q

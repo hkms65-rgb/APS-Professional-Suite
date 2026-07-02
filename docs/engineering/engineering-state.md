@@ -1,3 +1,3 @@
 # Engineering State
-Build: 0.2.0
-Completion: 12.0%
+Build: 0.3.0
+Completion: 18.0%
