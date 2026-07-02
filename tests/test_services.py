@@ -1,8 +1,9 @@
 import pytest
 
-from aps.services import RealEstateService, CRMService, IdentityService, FinanceService
+from aps.services import RealEstateService, CRMService, IdentityService, FinanceService, WarehouseService
 from aps.domain.realestate import PropertyType
 from aps.storage import CRMRepository, Database, DatabaseConfig, FinanceRepository
+from aps.storage.warehouse_repository import WarehouseRepository
 
 
 def test_realestate_summary():
@@ -21,6 +22,13 @@ def test_finance_budget():
     f = FinanceService()
     f.create_budget('Operations', 1000)
     assert f.total_budget() == 1000
+
+
+def test_warehouse_inventory():
+    w = WarehouseService()
+    w.receive_item('SKU-1', 10)
+    w.receive_item('SKU-1', 5)
+    assert w.inventory_total() == 15
 
 
 def test_identity():
@@ -81,3 +89,16 @@ def test_finance_service_uses_repository_when_provided(tmp_path):
 
     reloaded = FinanceService(FinanceRepository(Database(DatabaseConfig(path=str(tmp_path / 'aps.sqlite3')))))
     assert reloaded.total_budget() == 1500
+
+
+def test_warehouse_service_uses_repository_when_provided(tmp_path):
+    database_path = tmp_path / 'aps.sqlite3'
+    database = Database(DatabaseConfig(path=str(database_path)))
+    database.initialize()
+
+    service = WarehouseService(WarehouseRepository(database))
+    service.receive_item('SKU-1', 10)
+    service.receive_item('SKU-1', 5)
+
+    reloaded = WarehouseService(WarehouseRepository(Database(DatabaseConfig(path=str(database_path)))))
+    assert reloaded.inventory_total() == 15
