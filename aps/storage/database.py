@@ -30,22 +30,7 @@ class Database:
         finally:
             connection.close()
 
-    def initialize(self) -> None:
-        with self.connect() as connection:
-            connection.executescript(
-                """
-                CREATE TABLE IF NOT EXISTS crm_accounts (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT NOT NULL,
-                    segment TEXT NOT NULL DEFAULT 'general',
-                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-                );
+    def initialize(self) -> list[str]:
+        from .migrations import MigrationRunner
 
-                CREATE TABLE IF NOT EXISTS finance_budgets (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT NOT NULL UNIQUE,
-                    amount REAL NOT NULL CHECK(amount >= 0),
-                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-                );
-                """
-            )
+        return MigrationRunner(self).apply()
