@@ -1,7 +1,8 @@
 import pytest
 
-from aps.services import RealEstateService, CRMService, IdentityService
+from aps.services import RealEstateService, CRMService, IdentityService, FinanceService
 from aps.domain.realestate import PropertyType
+from aps.storage import CRMRepository, Database, DatabaseConfig, FinanceRepository
 
 
 def test_realestate_summary():
@@ -14,6 +15,12 @@ def test_crm_account():
     c=CRMService()
     c.create_account('Client A','industrial')
     assert len(c.list_accounts()) == 1
+
+
+def test_finance_budget():
+    f = FinanceService()
+    f.create_budget('Operations', 1000)
+    assert f.total_budget() == 1000
 
 
 def test_identity():
@@ -51,3 +58,26 @@ def test_identity_rejects_unknown_role_and_duplicate_user():
     i.create_user('admin@example.com', 'Admin', 'admin', password='admin-passphrase')
     with pytest.raises(ValueError):
         i.create_user('admin@example.com', 'Admin Again', 'admin', password='admin-passphrase')
+
+
+def test_crm_service_uses_repository_when_provided(tmp_path):
+    database = Database(DatabaseConfig(path=str(tmp_path / 'aps.sqlite3')))
+    database.initialize()
+
+    service = CRMService(CRMRepository(database))
+    service.create_account('Persistent Client', 'enterprise')
+
+    reloaded = CRMService(CRMRepository(Database(DatabaseConfig(path=str(tmp_path / 'aps.sqlite3')))))
+    assert reloaded.list_accounts() == [{'id': 1, 'name': 'Persistent Client', 'segment': 'enterprise'}]
+
+
+def test_finance_service_uses_repository_when_provided(tmp_path):
+    database = Database(DatabaseConfig(path=str(tmp_path / 'aps.sqlite3')))
+    database.initialize()
+
+    service = FinanceService(FinanceRepository(database))
+    service.create_budget('Operations', 1000)
+    service.create_budget('Facilities', 500)
+
+    reloaded = FinanceService(FinanceRepository(Database(DatabaseConfig(path=str(tmp_path / 'aps.sqlite3')))))
+    assert reloaded.total_budget() == 1500
