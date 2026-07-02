@@ -16,6 +16,7 @@ from aps.services import (
 )
 from aps.storage import CRMRepository, Database, DatabaseConfig, FinanceRepository
 from aps.storage.procurement_repository import ProcurementRepository
+from aps.storage.realestate_repository import RealEstateRepository
 from aps.storage.warehouse_repository import WarehouseRepository
 
 
@@ -36,7 +37,7 @@ wh = WarehouseService(WarehouseRepository(database))
 mfg = ManufacturingService()
 proc = ProcurementService(ProcurementRepository(database))
 ai = AIStudioService()
-re = RealEstateService()
+re = RealEstateService(RealEstateRepository(database))
 crm = CRMService(CRMRepository(database))
 
 
