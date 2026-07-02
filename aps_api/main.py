@@ -15,6 +15,7 @@ from aps.services import (
     CRMService,
 )
 from aps.storage import CRMRepository, Database, DatabaseConfig, FinanceRepository
+from aps.storage.procurement_repository import ProcurementRepository
 from aps.storage.warehouse_repository import WarehouseRepository
 
 
@@ -33,7 +34,7 @@ finance = FinanceService(FinanceRepository(database))
 hr = HRService()
 wh = WarehouseService(WarehouseRepository(database))
 mfg = ManufacturingService()
-proc = ProcurementService()
+proc = ProcurementService(ProcurementRepository(database))
 ai = AIStudioService()
 re = RealEstateService()
 crm = CRMService(CRMRepository(database))
@@ -57,6 +58,11 @@ class Inventory(BaseModel):
 class Account(BaseModel):
     name: str
     segment: str = 'general'
+
+
+class RFQ(BaseModel):
+    title: str
+    category: str
 
 
 @app.get('/')
@@ -107,6 +113,16 @@ def receive(i: Inventory):
 @app.get('/api/warehouse/summary')
 def wh_summary():
     return {'inventory_total': wh.inventory_total()}
+
+
+@app.post('/api/procurement/rfqs')
+def create_rfq(r: RFQ):
+    return proc.create_rfq(r.title, r.category)
+
+
+@app.get('/api/procurement/rfqs')
+def list_rfqs():
+    return proc.list_rfqs()
 
 
 @app.post('/api/crm/accounts')
