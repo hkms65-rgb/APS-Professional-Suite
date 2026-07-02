@@ -1,3 +1,1 @@
 # Apps
-
-APS apps workspace.

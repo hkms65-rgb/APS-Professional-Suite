@@ -1,20 +1,26 @@
 from dataclasses import dataclass, field
 from enum import Enum
 
-
 class ModuleState(str, Enum):
-    PLANNED = "planned"
-    READY = "ready"
-    ACTIVE = "active"
-    COMPLETE = "complete"
+    PLANNED='planned'
+    READY='ready'
+    ACTIVE='active'
+    COMPLETE='complete'
 
+class ModuleCategory(str, Enum):
+    FOUNDATION='foundation'
+    INTELLIGENCE='intelligence'
+    BUSINESS='business'
+    INDUSTRY='industry'
+    STUDIO='studio'
+    ADMINISTRATION='administration'
 
 @dataclass(frozen=True)
 class ModuleDescriptor:
+    id: str
     name: str
-    version: str = "0.0.1"
+    category: ModuleCategory
+    version: str = '0.2.0'
     state: ModuleState = ModuleState.PLANNED
     dependencies: tuple[str, ...] = field(default_factory=tuple)
-
-    def is_dependency_ready(self, completed_modules: set[str]) -> bool:
-        return all(dependency in completed_modules for dependency in self.dependencies)
+    summary: str = ''

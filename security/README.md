@@ -1,3 +1,1 @@
 # Security
-
-APS security workspace.

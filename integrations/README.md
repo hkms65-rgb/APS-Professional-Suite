@@ -1,3 +1,1 @@
 # Integrations
-
-APS integrations workspace.

@@ -1,3 +1,1 @@
 # Storage
-
-APS storage workspace.

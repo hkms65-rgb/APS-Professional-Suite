@@ -1,0 +1,1 @@
+fetch('/api/modules').then(r=>r.json()).then(ms=>modules.innerHTML=ms.map(m=>`<div class='card'><h3>${m.name}</h3><p>${m.summary}</p></div>`).join(''));fetch('/api/realestate/summary').then(r=>r.json()).then(s=>summary.textContent=JSON.stringify(s,null,2));

@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SynthoSurvey Enterprise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0f1a;--s1:#111827;--s2:#1a2235;--s3:#1e2d42;
+  --bd:rgba(255,255,255,.08);--bd2:rgba(255,255,255,.14);--bd3:rgba(255,255,255,.22);
+  --ac:#3b82f6;--ac2:#2563eb;--acbg:rgba(59,130,246,.1);--acbd:rgba(59,130,246,.25);
+  --tx:#f1f5f9;--tx2:#94a3b8;--tx3:#64748b;
+  --gr:#10b981;--ye:#f59e0b;--re:#ef4444;--pu:#8b5cf6;
+  --fn:'Inter','Noto Sans Arabic',system-ui,sans-serif;
+  --sidebar:264px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--fn);background:var(--bg);color:var(--tx);font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+
+/* ── LAYOUT ── */
+.shell{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar);min-width:var(--sidebar);background:var(--s1);border-right:1px solid var(--bd);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;transition:transform .25s ease}
+[dir=rtl] .sidebar{left:auto;right:0;border-right:none;border-left:1px solid var(--bd)}
+.main{margin-left:var(--sidebar);flex:1;padding:28px 36px;max-width:980px}
+[dir=rtl] .main{margin-left:0;margin-right:var(--sidebar)}
+
+/* ── MOBILE HEADER ── */
+.mob-header{display:none;position:fixed;top:0;left:0;right:0;z-index:200;background:var(--s1);border-bottom:1px solid var(--bd);padding:0 16px;height:52px;align-items:center;justify-content:space-between}
+.mob-logo{font-size:15px;font-weight:700}.mob-logo span{color:var(--ac)}
+.hamburger{background:none;border:none;color:var(--tx2);cursor:pointer;padding:8px;font-size:22px;line-height:1;min-width:40px;min-height:40px;display:flex;align-items:center;justify-content:center}
+.mob-status{display:flex;align-items:center;gap:8px}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99}
+.sidebar-overlay.open{display:block}
+.sidebar.open{transform:translateX(0)!important}
+
+/* ── SIDEBAR ── */
+.sb-logo{padding:18px 16px 14px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px}
+.logo-mark{width:32px;height:32px;border-radius:7px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.logo-t{font-size:13px;font-weight:700;line-height:1.2}.logo-s{font-size:10px;color:var(--tx3);margin-top:2px}
+.sb-close{background:none;border:none;color:var(--tx3);cursor:pointer;font-size:18px;margin-left:auto;display:none;padding:6px;min-width:32px;min-height:32px}
+.sb-sec{padding:12px 16px;border-bottom:1px solid var(--bd)}
+.sb-lbl{font-size:9px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.info-note{background:var(--acbg);border:1px solid var(--acbd);border-radius:7px;padding:10px 12px;font-size:11px;color:var(--tx2);line-height:1.7;margin-bottom:10px}
+.info-note a{color:var(--ac);text-decoration:none}
+.key-row{display:flex;gap:6px;align-items:center;margin-bottom:7px}
+.key-lbl{font-size:10px;color:var(--tx3);width:68px;flex-shrink:0;font-weight:500}
+.key-inp{flex:1;padding:7px 8px;background:var(--s2);border:1px solid var(--bd2);border-radius:6px;color:var(--tx);font-size:11px;font-family:var(--fn);outline:none;transition:border-color .15s}
+.key-inp:focus{border-color:var(--ac)}
+.key-inp.has-key{border-color:rgba(16,185,129,.5);background:rgba(16,185,129,.05)}
+.status-row{display:flex;align-items:center;gap:7px;margin-top:6px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--tx3);flex-shrink:0;transition:background .3s}
+.dot.ok{background:var(--gr)}.dot.try{background:var(--ye)}.dot.err{background:var(--re)}
+.st-txt{font-size:11px;color:var(--tx2);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lang-row{display:flex;gap:6px}
+.lang-btn{flex:1;padding:6px;border:1px solid var(--bd2);border-radius:6px;background:transparent;color:var(--tx2);font-size:11px;cursor:pointer;text-align:center;transition:all .15s;font-family:var(--fn);min-height:32px}
+.lang-btn.active{background:var(--acbg);border-color:var(--ac);color:var(--ac)}
+.sb-nav{padding:8px;flex:1}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;color:var(--tx2);font-size:12px;transition:all .15s;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;font-family:var(--fn);min-height:38px}
+.nav-item:hover{background:var(--s2);color:var(--tx)}
+.nav-item.active{background:var(--acbg);color:var(--ac)}
+[dir=rtl] .nav-item{text-align:right}
+.nav-num{width:20px;height:20px;border-radius:50%;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;background:var(--s3);color:var(--tx3);flex-shrink:0}
+.nav-item.active .nav-num{background:var(--ac);color:#fff}
+.nav-item.done .nav-num{background:var(--gr);color:#fff}
+.sb-foot{padding:12px 16px;border-top:1px solid var(--bd);font-size:10px;color:var(--tx3);line-height:1.8}
+
+/* ── CARDS ── */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:20px;margin-bottom:16px;transition:opacity .3s}
+.card-hdr{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--bd)}
+.card-icon{width:30px;height:30px;border-radius:7px;background:var(--acbg);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.card-t{font-size:13px;font-weight:600}.card-s{font-size:10px;color:var(--tx3);margin-top:1px}
+.card-badge{margin-left:auto;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:600;background:rgba(139,92,246,.15);color:#a78bfa;flex-shrink:0}
+
+/* ── FORMS ── */
+.fg{display:grid;gap:10px}
+.fg2{grid-template-columns:1fr 1fr}.fg3{grid-template-columns:1fr 1fr 1fr}
+.fgrp label{display:block;font-size:9px;font-weight:700;color:var(--tx2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.fgrp input,.fgrp select,.fgrp textarea{width:100%;padding:9px 11px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;color:var(--tx);font-size:13px;font-family:var(--fn);outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none}
+.fgrp input:focus,.fgrp select:focus,.fgrp textarea:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.fgrp textarea{resize:vertical;min-height:72px;line-height:1.6}
+select option{background:#1a2235}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;font-family:var(--fn);border:none;white-space:nowrap;min-height:44px;-webkit-tap-highlight-color:transparent}
+.btn-p{background:var(--ac);color:#fff}.btn-p:hover{background:var(--ac2)}.btn-p:active{transform:scale(.97)}.btn-p:disabled{opacity:.4;cursor:not-allowed}
+.btn-s{background:var(--s2);color:var(--tx);border:1px solid var(--bd2)}.btn-s:hover{background:var(--s3)}.btn-s:active{transform:scale(.97)}
+.btn-g{background:transparent;color:var(--tx2);border:1px solid var(--bd)}.btn-g:hover{background:var(--s2)}.btn-g:active{transform:scale(.97)}
+.btn-sm{padding:6px 12px;font-size:11px;min-height:34px}
+.btn-full{width:100%}
+
+/* ── TOAST ── */
+.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:500;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+[dir=rtl] .toast-wrap{right:auto;left:20px}
+.toast{padding:10px 14px;border-radius:9px;font-size:12px;font-weight:500;color:#fff;pointer-events:auto;opacity:0;transform:translateY(8px);transition:all .25s;max-width:320px;line-height:1.5}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast-err{background:#7f1d1d;border:1px solid #ef4444}
+.toast-ok{background:#064e3b;border:1px solid #10b981}
+.toast-info{background:#1e3a5f;border:1px solid #3b82f6}
+
+/* ── PERSONA CHIP ROW ── */
+.persona-chips{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;background:var(--s2);border:1px solid var(--bd2);border-radius:9px;margin-bottom:12px}
+.persona-chip{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:600;background:var(--acbg);color:var(--ac);border:1px solid var(--acbd)}
+
+/* ── METRICS ── */
+.met-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.met{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:14px;text-align:center;animation:fadein .4s ease}
+.met-v{font-size:24px;font-weight:700;line-height:1}
+.met-l{font-size:10px;color:var(--tx3);margin-top:5px;text-transform:uppercase;letter-spacing:.4px}
+.vg{color:var(--gr)}.vy{color:var(--ye)}.vr{color:var(--re)}.vb{color:var(--ac)}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ── BAR CHART ── */
+.bar-wrap{margin:14px 0}
+.bar-ttl{font-size:9px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.brow{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.blbl{width:88px;font-size:10px;color:var(--tx2);text-align:right;flex-shrink:0}
+[dir=rtl] .blbl{text-align:left}
+.btrk{flex:1;height:22px;background:var(--s3);border-radius:4px;overflow:hidden}
+.bfil{height:100%;border-radius:4px;display:flex;align-items:center;justify-content:flex-end;padding-right:7px;font-size:9px;color:#fff;font-weight:700;transition:width .7s cubic-bezier(.4,0,.2,1);min-width:0}
+[dir=rtl] .bfil{justify-content:flex-start;padding-right:0;padding-left:7px}
+.bpct{width:36px;font-size:10px;color:var(--tx2);flex-shrink:0}
+
+/* ── STRATEGY ── */
+.strat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.strat{background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:12px;animation:fadein .4s ease}
+.strat-l{font-size:9px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.strat-v{font-size:11px;color:var(--tx2);line-height:1.6}
+
+/* ── CONSUMER VOICE ── */
+.voice{background:linear-gradient(135deg,rgba(59,130,246,.07),rgba(139,92,246,.04));border:1px solid var(--acbd);border-radius:11px;padding:16px 18px;font-size:13px;line-height:1.8;color:var(--tx);font-style:italic;margin-top:14px;position:relative;animation:fadein .5s ease}
+.voice::before{content:'"';font-size:44px;color:var(--ac);opacity:.2;position:absolute;top:-4px;left:14px;font-style:normal;line-height:1}
+[dir=rtl] .voice::before{left:auto;right:14px}
+.voice-in{padding-left:8px}
+[dir=rtl] .voice-in{padding-left:0;padding-right:8px}
+.voice-copy{position:absolute;top:10px;right:10px;background:var(--s2);border:1px solid var(--bd2);border-radius:6px;padding:4px 8px;font-size:10px;color:var(--tx2);cursor:pointer;font-style:normal;transition:all .15s}
+[dir=rtl] .voice-copy{right:auto;left:10px}
+.voice-copy:hover{color:var(--tx);background:var(--s3)}
+
+/* ── AGENT LOG ── */
+.alog{background:#060b12;border:1px solid var(--bd);border-radius:9px;padding:12px;font-family:'Courier New',monospace;font-size:10px;max-height:200px;overflow-y:auto;line-height:1.9}
+.lok{color:var(--gr)}.lrun{color:var(--ac)}.lwarn{color:var(--ye)}.lerr{color:var(--re)}.ldim{color:var(--tx3)}
+
+/* ── CONCEPTS ── */
+.con-accordion{border:1px solid var(--bd2);border-radius:10px;overflow:hidden;margin-top:12px}
+.con-accord-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;background:var(--s2);transition:background .15s;user-select:none;-webkit-tap-highlight-color:transparent}
+.con-accord-hdr:hover{background:var(--s3)}
+.con-accord-hdr-l{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--tx)}
+.con-accord-hdr-r{font-size:12px;color:var(--tx3);transition:transform .2s}
+.con-accord-hdr-r.open{transform:rotate(180deg)}
+.con-body{display:none;border-top:1px solid var(--bd)}
+.con-body.open{display:block}
+.con-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px}
+.con-card{background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:12px;cursor:pointer;transition:border-color .15s,background .15s;-webkit-tap-highlight-color:transparent}
+.con-card:hover{border-color:var(--ac);background:var(--s3)}
+.con-card:active{transform:scale(.98)}
+.con-num{font-size:9px;color:var(--tx3);font-weight:700;margin-bottom:3px}
+.con-t{font-size:12px;font-weight:600;color:var(--tx);margin-bottom:3px}
+.con-d{font-size:10px;color:var(--tx2);line-height:1.5;margin-bottom:7px}
+.con-meta{display:flex;gap:5px;flex-wrap:wrap}
+.tag{font-size:9px;padding:2px 7px;border-radius:20px;background:var(--s3);color:var(--tx3)}
+.tag-ac{background:var(--acbg);color:var(--ac)}
+.con-other{padding:12px;border-top:1px solid var(--bd);background:var(--s1)}
+.con-other label{display:block;font-size:10px;font-weight:600;color:var(--tx2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.con-other-row{display:flex;gap:8px}
+.con-other-row input{flex:1;padding:8px 11px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;color:var(--tx);font-size:13px;font-family:var(--fn);outline:none}
+.con-other-row input:focus{border-color:var(--ac)}
+
+/* ── MARKET GRID ── */
+.mkt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.mkt-it{background:var(--s2);border-radius:7px;padding:9px}
+.mkt-il{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+.mkt-iv{font-size:11px;color:var(--tx);font-weight:500}
+.ok-box{background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.2);border-radius:7px;padding:9px 12px;font-size:11px;color:#6ee7b7;margin-top:8px}
+
+/* ── EVENT PILLS ── */
+.event-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.event-pill{padding:4px 11px;border-radius:20px;font-size:11px;cursor:pointer;background:var(--s2);border:1px solid var(--bd2);color:var(--tx2);transition:all .15s;-webkit-tap-highlight-color:transparent}
+.event-pill:hover{border-color:var(--ac);color:var(--ac);background:var(--acbg)}
+.event-pill.selected{border-color:var(--ac);color:var(--ac);background:var(--acbg)}
+.event-pill-lbl{font-size:9px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;margin-top:8px;margin-bottom:4px}
+
+/* ── INCOME SLIDER ── */
+.income-display{display:flex;align-items:baseline;gap:6px;margin-bottom:4px}
+.income-val{font-size:16px;font-weight:700;color:var(--ac)}
+.income-pct{font-size:11px;color:var(--tx3)}
+.income-desc{font-size:10px;color:var(--tx2);margin-top:3px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;background:var(--s3);outline:none;margin:8px 0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:var(--ac);cursor:pointer;border:2px solid var(--s2)}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ac);cursor:pointer;border:2px solid var(--s2)}
+
+/* ── MISC ── */
+.div{border:none;border-top:1px solid var(--bd);margin:14px 0}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.15);border-top-color:var(--ac);border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;flex-shrink:0}
+@keyframes sp{to{transform:rotate(360deg)}}
+.lrow{display:flex;align-items:center;gap:8px;color:var(--tx2);font-size:12px;padding:10px 0}
+.sec-lbl{font-size:9px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.skeleton{background:linear-gradient(90deg,var(--s2) 25%,var(--s3) 50%,var(--s2) 75%);background-size:200% 100%;animation:skel 1.4s ease infinite;border-radius:6px}
+@keyframes skel{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.results-fade{animation:fadein .5s ease}
+
+/* ── QR MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--s1);border:1px solid var(--bd2);border-radius:16px;padding:24px;max-width:340px;width:calc(100% - 32px);text-align:center}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:6px}
+.modal p{font-size:12px;color:var(--tx2);margin-bottom:16px;line-height:1.6}
+#qr-canvas{border-radius:10px;background:#fff;padding:8px;margin:0 auto 16px;display:block}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px}
+
+/* ══ MOBILE ══ */
+@media(max-width:768px){
+  .mob-header{display:flex}
+  .sb-close{display:block}
+  .sidebar{transform:translateX(-105%);box-shadow:4px 0 24px rgba(0,0,0,.5)}
+  [dir=rtl] .sidebar{transform:translateX(105%)}
+  .main{margin-left:0!important;margin-right:0!important;padding:60px 14px 28px}
+  .fg2,.fg3{grid-template-columns:1fr 1fr}
+  .fg3{grid-template-columns:1fr 1fr}
+  .met-row{grid-template-columns:1fr 1fr}
+  .met-row .met:last-child{grid-column:1/-1}
+  .strat-grid{grid-template-columns:1fr}
+  .con-grid{grid-template-columns:1fr}
+  .mkt-grid{grid-template-columns:1fr 1fr}
+  .card{padding:14px;border-radius:12px}
+  .btn{min-height:48px;font-size:14px}
+  .voice-copy{display:none}
+}
+@media(max-width:400px){
+  .fg2,.fg3{grid-template-columns:1fr}
+  .met-row{grid-template-columns:1fr}
+  .met-row .met:last-child{grid-column:auto}
+  .mkt-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<!-- MOBILE HEADER -->
+<header class="mob-header">
+  <button class="hamburger" onclick="toggleSidebar()" aria-label="Menu">☰</button>
+  <div class="mob-logo">Synth<span>o</span>Survey</div>
+  <div class="mob-status">
+    <span class="dot" id="dot-mob"></span>
+    <button class="btn btn-sm btn-s" onclick="showQR()" title="Share to phone" style="padding:6px 10px;min-height:34px">📱</button>
+  </div>
+</header>
+
+<div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo">
+    <div class="logo-mark">🧠</div>
+    <div><div class="logo-t">SynthoSurvey</div><div class="logo-s">Enterprise Research Engine</div></div>
+    <button class="sb-close" onclick="toggleSidebar()" aria-label="Close">✕</button>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl" id="lbl-keys">API Keys — use any one</div>
+    <div class="info-note" id="keys-note">
+      Add <strong>at least one</strong> free key.<br><br>
+      🟢 <a href="https://aistudio.google.com/apikey" target="_blank">Google Gemini</a><br>
+      🟢 <a href="https://console.groq.com/keys" target="_blank">Groq</a><br>
+      🟢 <a href="https://openrouter.ai/keys" target="_blank">OpenRouter</a>
+    </div>
+    <div class="key-row"><span class="key-lbl">Gemini</span><input class="key-inp" type="password" id="key-gemini" placeholder="AIza..." oninput="onKeyInput(this,'ss_gem')"></div>
+    <div class="key-row"><span class="key-lbl">Groq</span><input class="key-inp" type="password" id="key-groq" placeholder="gsk_..." oninput="onKeyInput(this,'ss_grq')"></div>
+    <div class="key-row"><span class="key-lbl">OpenRouter</span><input class="key-inp" type="password" id="key-or" placeholder="sk-or-v1-..." oninput="onKeyInput(this,'ss_or')"></div>
+    <div class="status-row">
+      <span class="dot" id="dot"></span>
+      <span class="st-txt" id="st-txt">Not connected</span>
+      <button class="btn btn-sm btn-s" onclick="testKeys()" id="btn-test">Test</button>
+    </div>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl" id="lbl-lang">Language</div>
+    <div class="lang-row">
+      <button class="lang-btn active" id="lang-en" onclick="setLang('en')">English</button>
+      <button class="lang-btn" id="lang-ar" onclick="setLang('ar')">العربية</button>
+    </div>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl" id="lbl-mkt-title">Active Market</div>
+    <div id="sb-mkt" style="font-size:11px;color:var(--tx3)">No market loaded</div>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="sb-lbl" id="lbl-steps">Steps</div>
+    <button class="nav-item active" id="nav-1" onclick="goTo('step1');closeSidebar()"><span class="nav-num">1</span><span id="nav-1-t">Market Config</span></button>
+    <button class="nav-item" id="nav-2" onclick="goTo('step2');closeSidebar()"><span class="nav-num">2</span><span id="nav-2-t">Discover Opportunities</span></button>
+    <button class="nav-item" id="nav-3" onclick="goTo('step3');closeSidebar()"><span class="nav-num">3</span><span id="nav-3-t">Survey Config</span></button>
+    <button class="nav-item" id="nav-4" onclick="goTo('step4');closeSidebar()"><span class="nav-num">4</span><span id="nav-4-t">Results</span></button>
+  </nav>
+  <div class="sb-foot">SSR · 6-Agent Council<br><span id="lbl-active-model">Active:</span> <span id="active-model" style="color:var(--ac)">none</span></div>
+</aside>
+
+<!-- QR MODAL -->
+<div class="modal-bg" id="qr-modal">
+  <div class="modal">
+    <h3 id="qr-title">Open on your phone</h3>
+    <p id="qr-desc">Scan to open SynthoSurvey. Your API keys transfer automatically.</p>
+    <canvas id="qr-canvas" width="200" height="200"></canvas>
+    <button class="btn btn-s btn-full" onclick="closeQR()">Close</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- STEP 1 -->
+  <div class="card" id="step1">
+    <div class="card-hdr">
+      <div class="card-icon">🌍</div>
+      <div><div class="card-t" id="s1-t">Step 1 — Market Auto-Configuration</div><div class="card-s" id="s1-s">AI generates a complete economic & demographic profile</div></div>
+    </div>
+    <div class="fg fg2">
+      <div class="fgrp"><label id="lbl-country">Target country</label><input type="text" id="country" placeholder="Kuwait, Egypt, Saudi Arabia, India…"></div>
+      <div class="fgrp" style="display:flex;align-items:flex-end"><button class="btn btn-p btn-full" onclick="loadMarket()" id="btn-market"><span class="spin" id="spin-market" style="display:none"></span><span id="btn-market-t"> 🌍 Load market data</span></button></div>
+    </div>
+    <div id="mkt-result" style="display:none;margin-top:12px">
+      <div class="ok-box" id="mkt-ok"></div>
+      <div class="mkt-grid" id="mkt-grid"></div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="card" id="step2">
+    <div class="card-hdr">
+      <div class="card-icon">💡</div>
+      <div><div class="card-t" id="s2-t">Step 2 — Opportunity Discovery</div><div class="card-s" id="s2-s">Select an event or enter your own, then generate 10 product concepts</div></div>
+      <span class="card-badge" id="s2-badge">Optional</span>
+    </div>
+
+    <div class="fgrp" style="margin-bottom:10px">
+      <label id="lbl-event">Target event / season</label>
+      <select id="event-select" onchange="onEventSelect(this.value)" style="margin-bottom:6px">
+        <option value="">— Select an event —</option>
+      </select>
+      <div id="event-other-row" style="display:none;margin-top:6px">
+        <input type="text" id="event-other" placeholder="Describe your custom event or season…">
+      </div>
+    </div>
+
+    <div class="event-pills-wrap" id="event-pills-wrap" style="display:none;margin-bottom:12px">
+      <div class="event-pill-lbl" id="lbl-quick-events">Quick select from market events</div>
+      <div class="event-pills" id="event-pills"></div>
+    </div>
+
+    <div class="fg fg2">
+      <div></div>
+      <button class="btn btn-s btn-full" onclick="discoverConcepts()" id="btn-discover"><span class="spin" id="spin-discover" style="display:none"></span><span id="btn-discover-t"> 🔍 Discover 10 concepts</span></button>
+    </div>
+
+    <!-- Concepts accordion -->
+    <div id="con-accordion-wrap" style="display:none">
+      <div class="con-accordion">
+        <div class="con-accord-hdr" onclick="toggleConcepts()" id="con-hdr">
+          <div class="con-accord-hdr-l">
+            <span>💡</span>
+            <span id="con-hdr-title">10 product concepts — click to expand</span>
+          </div>
+          <span class="con-accord-hdr-r" id="con-chevron">▼</span>
+        </div>
+        <div class="con-body" id="con-body">
+          <div class="con-grid" id="con-grid"></div>
+          <div class="con-other">
+            <label id="lbl-con-other">Or describe your own concept</label>
+            <div class="con-other-row">
+              <input type="text" id="con-custom-product" placeholder="My product idea…">
+              <input type="text" id="con-custom-price" placeholder="Price e.g. 5 KWD" style="max-width:130px">
+              <button class="btn btn-s btn-sm" onclick="pickCustomConcept()">→ Use</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="card" id="step3">
+    <div class="card-hdr">
+      <div class="card-icon">📋</div>
+      <div><div class="card-t" id="s3-t">Step 3 — Survey Configuration</div><div class="card-s" id="s3-s">Define the synthetic consumer persona and product</div></div>
+    </div>
+
+    <!-- Persona preview chips -->
+    <div class="persona-chips" id="persona-chips" style="display:none"></div>
+
+    <div class="fg fg3" style="margin-bottom:10px">
+      <div class="fgrp"><label id="lbl-gender">Gender</label>
+        <select id="gender" onchange="updatePersonaChips()"><option>Male</option><option>Female</option><option>Other</option></select>
+      </div>
+      <div class="fgrp"><label id="lbl-age">Age group</label>
+        <select id="age" onchange="updatePersonaChips()">
+          <option>Under 18</option><option>18–24</option><option>25–34</option><option>35–44</option><option>45–54</option><option>55–64</option><option>65–74</option><option>75+</option>
+        </select>
+      </div>
+      <div class="fgrp"><label id="lbl-nat">Nationality</label>
+        <select id="nationality" onchange="updatePersonaChips()"><option>Local / Kuwaiti</option><option>Arab Expat</option><option>South Asian Expat</option><option>Western Expat</option><option>Other</option></select>
+      </div>
+    </div>
+    <div class="fg fg3" style="margin-bottom:10px">
+      <div class="fgrp"><label id="lbl-region">Region</label>
+        <select id="region" onchange="updatePersonaChips()"><option>Capital</option><option>Hawalli</option><option>Ahmadi</option><option>Farwaniyah</option><option>Jahra</option><option>Mubarak Al-Kabeer</option></select>
+      </div>
+      <div class="fgrp"><label id="lbl-faith">Faith</label>
+        <select id="faith" onchange="updatePersonaChips()"><option>Muslim</option><option>Christian</option><option>Hindu</option><option>Buddhist</option><option>Other / Secular</option></select>
+      </div>
+      <div class="fgrp"><label id="lbl-season">Season / period</label>
+        <select id="season" onchange="updatePersonaChips()"><option>Ramadan</option><option>Eid Al-Fitr</option><option>Eid Al-Adha</option><option>White Friday</option><option>National Day</option><option>Back to School</option><option>Summer</option><option>Winter</option><option>General</option></select>
+      </div>
+    </div>
+
+    <!-- Income bracket slider -->
+    <div class="fgrp" style="margin-bottom:12px">
+      <label id="lbl-income">Income bracket</label>
+      <div class="income-display">
+        <span class="income-val" id="income-val">KD 700–1,500/mo</span>
+        <span class="income-pct" id="income-pct">Middle class · ~28% of population</span>
+      </div>
+      <input type="range" id="income-slider" min="0" max="5" value="2" step="1" oninput="onIncomeChange(this.value)" onchange="updatePersonaChips()">
+      <div class="income-desc" id="income-desc">Comfortable household, brand-conscious, price-sensitive on big tickets</div>
+    </div>
+
+    <div class="fg" style="margin-bottom:10px">
+      <div class="fgrp"><label id="lbl-product">Product concept</label><textarea id="product" placeholder="Describe your product or service idea…" oninput="updatePersonaChips()"></textarea></div>
+    </div>
+    <div class="fg fg2">
+      <div class="fgrp"><label id="lbl-price">Target price (local currency)</label><input type="text" id="price" placeholder="e.g. 12.500 KWD / 150 EGP" oninput="updatePersonaChips()"></div>
+      <div class="fgrp" style="display:flex;align-items:flex-end">
+        <button class="btn btn-p btn-full" onclick="runCouncil()" id="btn-run"><span class="spin" id="spin-run" style="display:none"></span><span id="btn-run-t"> ⚡ Run Supreme Council</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="card results-fade" id="step4" style="display:none">
+    <div class="card-hdr">
+      <div class="card-icon">📊</div>
+      <div><div class="card-t" id="s4-t">Step 4 — Results Dashboard</div><div class="card-s" id="s4-s">Supreme Council verdict & GTM strategy</div></div>
+    </div>
+    <div class="met-row" id="met-row"></div>
+    <div class="bar-wrap"><div class="bar-ttl" id="pmf-title">SSR Probability Mass Function</div><div id="pmf-bars"></div></div>
+    <div class="div"></div>
+    <div class="sec-lbl" id="gtm-lbl">GTM Strategy</div>
+    <div class="strat-grid" id="strat-grid"></div>
+    <div class="sec-lbl" style="margin-top:16px" id="cv-lbl">Consumer voice</div>
+    <div class="voice" id="voice-box">
+      <button class="voice-copy" id="voice-copy-btn" onclick="copyVoice()" title="Copy to clipboard">⎘ Copy</button>
+      <div class="voice-in" id="cv"></div>
+    </div>
+    <div class="div"></div>
+    <div class="sec-lbl" id="log-lbl">Agent log</div>
+    <div class="alog" id="alog"></div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-g btn-sm" onclick="exportJSON()" id="btn-export">⬇ Export JSON</button>
+      <button class="btn btn-g btn-sm" onclick="runCouncil()" id="btn-rerun">↺ Re-run</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ══ STATE ══════════════════════════════════════════════════════
+let lang='en', marketData=null, logLines=[], lastResults=null;
+
+// Income brackets with monetary values + market share
+const INCOME_BRACKETS=[
+  {label:'< KD 300/mo',  labelAr:'أقل من 300 د.ك/شهر',  pct:'Low income · ~12% of population',    pctAr:'دخل منخفض · ~12% من السكان',     desc:'Budget-first decisions, essentials only, extremely price-sensitive',descAr:'قرارات محدودة الميزانية، ضروريات فقط'},
+  {label:'KD 300–700/mo',labelAr:'300–700 د.ك/شهر',     pct:'Lower-middle · ~21% of population',  pctAr:'متوسط دون · ~21% من السكان',      desc:'Value-seeking, cautious spenders, responsive to promotions',     descAr:'باحث عن القيمة، منفق حذر، يستجيب للعروض'},
+  {label:'KD 700–1,500/mo',labelAr:'700–1,500 د.ك/شهر',pct:'Middle class · ~28% of population',  pctAr:'طبقة متوسطة · ~28% من السكان',    desc:'Comfortable household, brand-conscious, price-sensitive on big tickets',descAr:'أسرة مرتاحة، واعية بالعلامات التجارية'},
+  {label:'KD 1,500–3,000/mo',labelAr:'1,500–3,000 د.ك/شهر',pct:'Upper-middle · ~24% of population',pctAr:'فوق المتوسط · ~24% من السكان',  desc:'Quality-driven, experiences over products, brand loyal',          descAr:'يفضل الجودة، يقدّر التجارب على المنتجات'},
+  {label:'KD 3,000–7,000/mo',labelAr:'3,000–7,000 د.ك/شهر',pct:'Affluent · ~11% of population',  pctAr:'ميسور · ~11% من السكان',           desc:'Aspirational brands, convenience premium, limited price sensitivity',descAr:'علامات تطلعية، يدفع مقابل الراحة'},
+  {label:'KD 7,000+/mo',  labelAr:'+7,000 د.ك/شهر',     pct:'High income · ~4% of population',   pctAr:'دخل مرتفع · ~4% من السكان',       desc:'Luxury, exclusivity, global travel, prestige purchases',         descAr:'فاخر، حصري، سفر دولي، مشتريات مرموقة'},
+];
+
+const ANCHORS={
+  en:["I would definitely not buy this. It ignores my budget, needs, or standards.","I probably would not buy this. Too expensive or impractical for my household.","I am undecided. Some merits but significant concerns or I'll wait for a sale.","I probably would buy this. Fits my lifestyle, reasonable price, solves a problem.","I would definitely buy this. Exactly what I need, perfect value proposition."],
+  ar:["لن أشتري هذا المنتج بالتأكيد. إنه يتجاهل ميزانيتي أو احتياجات عائلتي تماماً.","على الأرجح لن أشتري هذا المنتج. إنه مكلف جداً أو غير عملي.","أنا متردد. هناك بعض المزايا ولكن لدي مخاوف كبيرة أو سأنتظر تخفيضاً.","على الأرجح سأشتري هذا المنتج. يناسب نمط حياتي وسعره معقول.","سأشتري هذا المنتج بالتأكيد. إنه بالضبط ما أحتاجه وقيمته ممتازة."]
+};
+
+// ══ TRANSLATIONS ═══════════════════════════════════════════════
+const UI={
+  en:{
+    's1-t':'Step 1 — Market Auto-Configuration','s1-s':'AI generates a complete economic & demographic profile',
+    's2-t':'Step 2 — Opportunity Discovery','s2-s':'Select an event or enter your own, then generate 10 product concepts',
+    's3-t':'Step 3 — Survey Configuration','s3-s':'Define the synthetic consumer persona and product',
+    's4-t':'Step 4 — Results Dashboard','s4-s':'Supreme Council verdict & GTM strategy',
+    'lbl-country':'Target country','lbl-event':'Target event / season',
+    'lbl-gender':'Gender','lbl-age':'Age group','lbl-nat':'Nationality',
+    'lbl-region':'Region','lbl-income':'Income bracket','lbl-faith':'Faith',
+    'lbl-season':'Season / period','lbl-product':'Product concept','lbl-price':'Target price (local currency)',
+    'btn-market':' 🌍 Load market data','btn-discover':' 🔍 Discover 10 concepts','btn-run':' ⚡ Run Supreme Council',
+    'nav-1':'Market Config','nav-2':'Discover Opportunities','nav-3':'Survey Config','nav-4':'Results',
+    'sb-mkt-empty':'No market loaded',
+    'met-conf':'Council confidence','met-pi':'Mean purchase intent','met-time':'Processing time',
+    'pmf-title':'SSR Probability Mass Function','gtm-lbl':'GTM Strategy','cv-lbl':'Consumer voice','log-lbl':'Agent log',
+    'bar-1':'1 — No','bar-2':'2 — Unlikely','bar-3':'3 — Undecided','bar-4':'4 — Likely','bar-5':'5 — Yes',
+    'strat-where':'📍 Where to sell','strat-when':'📅 When to launch','strat-mkt':'🎯 Marketing','strat-price':'💰 Pricing','strat-day':'🗓 Launch day',
+    'btn-export':'⬇ Export JSON','btn-rerun':'↺ Re-run',
+    'ph-country':'Kuwait, Egypt, Saudi Arabia, India…',
+    'ph-product':'Describe your product or service idea…','ph-price':'e.g. 12.500 KWD / 150 EGP',
+    'opt-gender':['Male','Female','Other'],
+    'opt-faith':['Muslim','Christian','Hindu','Buddhist','Other / Secular'],
+    'opt-season':['Ramadan','Eid Al-Fitr','Eid Al-Adha','White Friday','National Day','Back to School','Summer','Winter','General'],
+    'lbl-keys':'API Keys — use any one','lbl-lang':'Language','lbl-mkt-title':'Active Market','lbl-steps':'Steps',
+    'lbl-active-model':'Active:',
+    'keys-note':'Add <strong>at least one</strong> free key.<br><br>🟢 <a href="https://aistudio.google.com/apikey" target="_blank">Google Gemini</a><br>🟢 <a href="https://console.groq.com/keys" target="_blank">Groq</a><br>🟢 <a href="https://openrouter.ai/keys" target="_blank">OpenRouter</a>',
+    'qr-title':'Open on your phone','qr-desc':'Scan to open SynthoSurvey. Your API keys transfer automatically.',
+    's2-badge':'Optional','lbl-quick-events':'Quick select from market events',
+    'lbl-con-other':'Or describe your own concept',
+    'con-hdr-title-t':'10 product concepts — click to expand',
+    'voice-copy-btn':'⎘ Copy',
+    'opt-age':['Under 18','18–24','25–34','35–44','45–54','55–64','65–74','75+'],
+    'event-other-ph':'Describe your custom event or season…',
+    'event-select-default':'— Select an event —',
+    'event-select-other':'Other (custom)…',
+  },
+  ar:{
+    's1-t':'الخطوة الأولى — الإعداد التلقائي للسوق','s1-s':'يولّد الذكاء الاصطناعي ملفاً اقتصادياً وديموغرافياً شاملاً',
+    's2-t':'الخطوة الثانية — اكتشاف الفرص','s2-s':'اختر حدثاً أو أدخل خاصتك، ثم ولّد 10 مفاهيم منتجات',
+    's3-t':'الخطوة الثالثة — إعداد الاستطلاع','s3-s':'حدد شخصية المستهلك الاصطناعي والمنتج',
+    's4-t':'الخطوة الرابعة — لوحة النتائج','s4-s':'حكم المجلس الأعلى وإستراتيجية دخول السوق',
+    'lbl-country':'الدولة المستهدفة','lbl-event':'الحدث / الموسم المستهدف',
+    'lbl-gender':'الجنس','lbl-age':'الفئة العمرية','lbl-nat':'الجنسية',
+    'lbl-region':'المنطقة','lbl-income':'شريحة الدخل','lbl-faith':'الديانة',
+    'lbl-season':'الموسم / الفترة','lbl-product':'فكرة المنتج','lbl-price':'السعر المستهدف (بالعملة المحلية)',
+    'btn-market':' 🌍 تحميل بيانات السوق','btn-discover':' 🔍 اكتشف 10 مفاهيم','btn-run':' ⚡ تشغيل المجلس الأعلى',
+    'nav-1':'إعداد السوق','nav-2':'اكتشاف الفرص','nav-3':'إعداد الاستطلاع','nav-4':'النتائج',
+    'sb-mkt-empty':'لم يتم تحميل سوق',
+    'met-conf':'ثقة المجلس','met-pi':'متوسط نية الشراء','met-time':'وقت المعالجة',
+    'pmf-title':'دالة كثافة الاحتمالية SSR','gtm-lbl':'إستراتيجية دخول السوق','cv-lbl':'صوت المستهلك','log-lbl':'سجل الوكلاء',
+    'bar-1':'1 — رفض','bar-2':'2 — مرجح لا','bar-3':'3 — متردد','bar-4':'4 — مرجح نعم','bar-5':'5 — نعم مؤكد',
+    'strat-where':'📍 أين تبيع','strat-when':'📅 متى تطلق','strat-mkt':'🎯 التسويق','strat-price':'💰 التسعير','strat-day':'🗓 يوم الإطلاق',
+    'btn-export':'⬇ تصدير JSON','btn-rerun':'↺ إعادة التشغيل',
+    'ph-country':'الكويت، مصر، السعودية، الهند…',
+    'ph-product':'صف فكرة منتجك أو خدمتك…','ph-price':'مثال: 12.500 د.ك / 150 ج.م',
+    'opt-gender':['ذكر','أنثى','آخر'],
+    'opt-faith':['مسلم','مسيحي','هندوسي','بوذي','آخر / علماني'],
+    'opt-season':['رمضان','عيد الفطر','عيد الأضحى','الجمعة البيضاء','اليوم الوطني','العودة للمدارس','الصيف','الشتاء','عام'],
+    'lbl-keys':'مفاتيح API — استخدم أياً منها','lbl-lang':'اللغة','lbl-mkt-title':'السوق النشط','lbl-steps':'الخطوات',
+    'lbl-active-model':'النشط:',
+    'keys-note':'أضف <strong>مفتاحاً واحداً</strong> على الأقل.<br><br>🟢 <a href="https://aistudio.google.com/apikey" target="_blank">Google Gemini</a><br>🟢 <a href="https://console.groq.com/keys" target="_blank">Groq</a><br>🟢 <a href="https://openrouter.ai/keys" target="_blank">OpenRouter</a>',
+    'qr-title':'افتح على هاتفك','qr-desc':'امسح الرمز لفتح SynthoSurvey. مفاتيح API تنتقل تلقائياً.',
+    's2-badge':'اختياري','lbl-quick-events':'اختيار سريع من أحداث السوق',
+    'lbl-con-other':'أو صف مفهومك الخاص',
+    'con-hdr-title-t':'10 مفاهيم منتجات — اضغط للتوسيع',
+    'voice-copy-btn':'⎘ نسخ',
+    'opt-age':['أقل من 18','18–24','25–34','35–44','45–54','55–64','65–74','75+'],
+    'event-other-ph':'صف حدثك أو موسمك المخصص…',
+    'event-select-default':'— اختر حدثاً —',
+    'event-select-other':'أخرى (مخصص)…',
+  }
+};
+function t(k){return (UI[lang]||UI.en)[k]||k}
+
+// ══ APPLY LANGUAGE ═════════════════════════════════════════════
+const EL_IDS=['s1-t','s1-s','s2-t','s2-s','s3-t','s3-s','s4-t','s4-s',
+  'lbl-country','lbl-event','lbl-gender','lbl-age','lbl-nat','lbl-region',
+  'lbl-income','lbl-faith','lbl-season','lbl-product','lbl-price',
+  'met-conf','met-pi','met-time','pmf-title','gtm-lbl','cv-lbl','log-lbl',
+  'lbl-keys','lbl-lang','lbl-mkt-title','lbl-steps','lbl-active-model','keys-note',
+  's2-badge','lbl-quick-events','lbl-con-other'];
+
+function applyLang(){
+  document.documentElement.lang=lang;
+  document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+  document.getElementById('lang-en').classList.toggle('active',lang==='en');
+  document.getElementById('lang-ar').classList.toggle('active',lang==='ar');
+  EL_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=t(id)});
+  // Buttons
+  [['btn-market-t','btn-market'],['btn-discover-t','btn-discover'],['btn-run-t','btn-run']].forEach(([elId,tk])=>{
+    const el=document.getElementById(elId);if(el)el.textContent=t(tk);
+  });
+  document.getElementById('btn-export').textContent=t('btn-export');
+  document.getElementById('btn-rerun').textContent=t('btn-rerun');
+  const vcb=document.getElementById('voice-copy-btn');if(vcb)vcb.textContent=t('voice-copy-btn');
+  // Nav
+  ['1','2','3','4'].forEach(n=>{const el=document.getElementById('nav-'+n+'-t');if(el)el.textContent=t('nav-'+n)});
+  // Placeholders
+  [['country','ph-country'],['product','ph-product'],['price','ph-price'],
+   ['event-other','event-other-ph'],['con-custom-product','ph-product']].forEach(([id,k])=>{
+    const el=document.getElementById(id);if(el)el.placeholder=t(k);
+  });
+  // Selects
+  [['gender','opt-gender'],['faith','opt-faith'],['season','opt-season'],['age','opt-age']].forEach(([id,k])=>{
+    const sel=document.getElementById(id);const opts=t(k);
+    if(sel&&Array.isArray(opts)){const v=sel.selectedIndex;sel.innerHTML=opts.map(o=>`<option>${o}</option>`).join('');sel.selectedIndex=Math.max(0,v);}
+  });
+  // Income
+  onIncomeChange(document.getElementById('income-slider').value);
+  // Event select
+  rebuildEventSelect();
+  // Sidebar
+  const sbm=document.getElementById('sb-mkt');if(sbm&&!marketData)sbm.textContent=t('sb-mkt-empty');
+  // QR modal
+  const qt=document.getElementById('qr-title');if(qt)qt.textContent=t('qr-title');
+  const qd=document.getElementById('qr-desc');if(qd)qd.textContent=t('qr-desc');
+  // Concepts header
+  const cht=document.getElementById('con-hdr-title');if(cht)cht.textContent=t('con-hdr-title-t');
+  localStorage.setItem('ss_lang',lang);
+}
+function setLang(l){lang=l;applyLang();updatePersonaChips()}
+
+// ══ INCOME SLIDER ══════════════════════════════════════════════
+function onIncomeChange(v){
+  const idx=parseInt(v);
+  const b=INCOME_BRACKETS[idx];
+  const isAr=lang==='ar';
+  document.getElementById('income-val').textContent=isAr?b.labelAr:b.label;
+  document.getElementById('income-pct').textContent=isAr?b.pctAr:b.pct;
+  document.getElementById('income-desc').textContent=isAr?b.descAr:b.desc;
+}
+function getIncomeLabel(){
+  return INCOME_BRACKETS[parseInt(document.getElementById('income-slider').value)].label;
+}
+
+// ══ PERSONA CHIPS ══════════════════════════════════════════════
+function updatePersonaChips(){
+  const chips=document.getElementById('persona-chips');
+  const product=document.getElementById('product').value.trim();
+  const price=document.getElementById('price').value.trim();
+  if(!product&&!price){chips.style.display='none';return;}
+  const vals=[
+    document.getElementById('gender').value,
+    document.getElementById('age').value,
+    document.getElementById('nationality').value,
+    document.getElementById('region').value,
+    document.getElementById('faith').value,
+    document.getElementById('season').value,
+    getIncomeLabel(),
+  ].filter(Boolean);
+  if(product)vals.push('📦 '+product.slice(0,30)+(product.length>30?'…':''));
+  if(price)vals.push('💰 '+price);
+  chips.innerHTML=vals.map(v=>`<span class="persona-chip">${esc(v)}</span>`).join('');
+  chips.style.display='flex';
+}
+
+// ══ EVENT SELECT ═══════════════════════════════════════════════
+function rebuildEventSelect(){
+  const sel=document.getElementById('event-select');
+  const current=sel.value;
+  // Base options
+  const opts=[`<option value="">${t('event-select-default')}</option>`];
+  // Cultural events from market data
+  if(marketData?.cultural_events?.length){
+    marketData.cultural_events.forEach(ev=>{
+      opts.push(`<option value="${esc(ev)}">${esc(ev)}</option>`);
+    });
+  }
+  opts.push(`<option value="__other__">${t('event-select-other')}</option>`);
+  sel.innerHTML=opts.join('');
+  // Restore selection if still valid
+  if(current){
+    const opt=[...sel.options].find(o=>o.value===current);
+    if(opt)sel.value=current;
+  }
+}
+
+function onEventSelect(val){
+  const otherRow=document.getElementById('event-other-row');
+  otherRow.style.display=val==='__other__'?'block':'none';
+}
+
+function getEventValue(){
+  const sel=document.getElementById('event-select');
+  if(sel.value==='__other__') return document.getElementById('event-other').value.trim();
+  return sel.value;
+}
+
+// ══ SIDEBAR ════════════════════════════════════════════════════
+function toggleSidebar(){const sb=document.getElementById('sidebar'),ov=document.getElementById('overlay');sb.classList.toggle('open');ov.classList.toggle('open')}
+function closeSidebar(){if(window.innerWidth<=768){document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('open')}}
+function goTo(id){document.getElementById(id).scrollIntoView({behavior:'smooth',block:'start'})}
+
+// ══ CONCEPTS ACCORDION ═════════════════════════════════════════
+function toggleConcepts(){
+  const body=document.getElementById('con-body');
+  const chev=document.getElementById('con-chevron');
+  const isOpen=body.classList.contains('open');
+  body.classList.toggle('open',!isOpen);
+  chev.classList.toggle('open',!isOpen);
+}
+function pickConcept(title,desc,price){
+  document.getElementById('product').value=title+(desc?' — '+desc:'');
+  document.getElementById('price').value=price;
+  // Auto-close accordion and scroll to step 3
+  document.getElementById('con-body').classList.remove('open');
+  document.getElementById('con-chevron').classList.remove('open');
+  document.getElementById('step3').scrollIntoView({behavior:'smooth'});
+  updatePersonaChips();
+  showToast(lang==='ar'?'تم اختيار المنتج ✓':'Concept selected ✓','ok');
+}
+function pickCustomConcept(){
+  const prod=document.getElementById('con-custom-product').value.trim();
+  const price=document.getElementById('con-custom-price').value.trim();
+  if(!prod){showToast(lang==='ar'?'أدخل وصف المنتج':'Enter a product description','err');return}
+  document.getElementById('product').value=prod;
+  if(price)document.getElementById('price').value=price;
+  document.getElementById('step3').scrollIntoView({behavior:'smooth'});
+  updatePersonaChips();
+  showToast(lang==='ar'?'تم اختيار المنتج ✓':'Custom concept applied ✓','ok');
+}
+
+// ══ HELPERS ════════════════════════════════════════════════════
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function setLoad(id,on){const s=document.getElementById('spin-'+id),b=document.getElementById('btn-'+id);if(s)s.style.display=on?'inline-block':'none';if(b)b.disabled=on}
+function parseJSON(txt){
+  txt=txt.replace(/```json\n?/gi,'').replace(/```\n?/g,'').trim();
+  try{return JSON.parse(txt)}catch(e){}
+  // Try to extract first valid JSON object
+  const m=txt.match(/\{[\s\S]*\}/);
+  if(m){try{return JSON.parse(m[0])}catch(e){}}
+  // Try to extract each field individually as fallback
+  return {};
+}
+function log(m,c='ldim'){logLines.push(`<span class="${c}">${m}</span>`);const el=document.getElementById('alog');if(el){el.innerHTML=logLines.join('<br>');el.scrollTop=el.scrollHeight}}
+function setModel(m){const el=document.getElementById('active-model');if(el)el.textContent=m}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+
+// ══ TOAST ══════════════════════════════════════════════════════
+function showToast(msg,type='info',dur=3000){
+  const wrap=document.getElementById('toast-wrap');
+  const d=document.createElement('div');
+  d.className=`toast toast-${type}`;d.textContent=msg;
+  wrap.appendChild(d);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>d.classList.add('show')));
+  setTimeout(()=>{d.classList.remove('show');setTimeout(()=>d.remove(),300)},dur);
+}
+
+// ══ KEY PERSISTENCE ════════════════════════════════════════════
+function onKeyInput(el,sk){
+  el.classList.toggle('has-key',el.value.trim().length>5);
+  if(el.value.trim())localStorage.setItem(sk,el.value.trim());
+  else localStorage.removeItem(sk);
+}
+function loadSavedKeys(){
+  [['key-gemini','ss_gem'],['key-groq','ss_grq'],['key-or','ss_or']].forEach(([id,sk])=>{
+    const v=localStorage.getItem(sk);
+    if(v){const el=document.getElementById(id);if(el){el.value=v;el.classList.add('has-key');}}
+  });
+}
+
+// ══ SESSION PERSISTENCE (market + results) ══════════════════════
+function saveSession(){
+  try{
+    sessionStorage.setItem('ss_market',JSON.stringify(marketData));
+    if(lastResults)sessionStorage.setItem('ss_results',JSON.stringify(lastResults));
+  }catch(e){}
+}
+function loadSession(){
+  try{
+    const m=sessionStorage.getItem('ss_market');
+    if(m){marketData=JSON.parse(m);renderMarketSummary();}
+    const r=sessionStorage.getItem('ss_results');
+    if(r){lastResults=JSON.parse(r);document.getElementById('step4').style.display='block';renderResults(lastResults);}
+  }catch(e){}
+}
+
+// ══ QR — key transfer ══════════════════════════════════════════
+function showQR(){
+  const g=localStorage.getItem('ss_gem')||'';
+  const gr=localStorage.getItem('ss_grq')||'';
+  const or=localStorage.getItem('ss_or')||'';
+  const l=localStorage.getItem('ss_lang')||'en';
+  const params=new URLSearchParams();
+  if(g)params.set('g',g);if(gr)params.set('gr',gr);if(or)params.set('or',or);params.set('l',l);
+  const url=window.location.href.split('#')[0]+'#'+params.toString();
+  drawQR(url);
+  document.getElementById('qr-modal').classList.add('open');
+}
+function closeQR(){document.getElementById('qr-modal').classList.remove('open')}
+function drawQR(text){
+  const canvas=document.getElementById('qr-canvas');
+  const ctx=canvas.getContext('2d');
+  const sz=200;canvas.width=sz;canvas.height=sz;
+  ctx.fillStyle='#fff';ctx.fillRect(0,0,sz,sz);
+  ctx.fillStyle='#334';ctx.font='11px sans-serif';ctx.textAlign='center';
+  ctx.fillText('Loading…',sz/2,sz/2);
+  const img=new Image();
+  img.onload=()=>{ctx.clearRect(0,0,sz,sz);ctx.drawImage(img,0,0,sz,sz)};
+  img.onerror=()=>{
+    ctx.clearRect(0,0,sz,sz);ctx.fillStyle='#fff';ctx.fillRect(0,0,sz,sz);
+    ctx.fillStyle='#334';ctx.font='11px sans-serif';ctx.textAlign='center';
+    ctx.fillText('QR unavailable',sz/2,sz/2-8);
+    ctx.fillText('Copy from address bar',sz/2,sz/2+10);
+  };
+  img.crossOrigin='anonymous';
+  img.src=`https://api.qrserver.com/v1/create-qr-code/?size=${sz}x${sz}&data=${encodeURIComponent(text)}`;
+}
+function readHashKeys(){
+  const hash=window.location.hash.slice(1);
+  if(!hash)return;
+  try{
+    const p=new URLSearchParams(hash);
+    if(p.get('g'))localStorage.setItem('ss_gem',p.get('g'));
+    if(p.get('gr'))localStorage.setItem('ss_grq',p.get('gr'));
+    if(p.get('or'))localStorage.setItem('ss_or',p.get('or'));
+    if(p.get('l'))localStorage.setItem('ss_lang',p.get('l'));
+    history.replaceState(null,'',window.location.pathname);
+  }catch(e){}
+}
+
+// ══ API PROVIDERS ══════════════════════════════════════════════
+async function tryGemini(key,messages,sys,temp,maxTok){
+  const models=['gemini-2.0-flash','gemini-2.0-flash-lite','gemini-1.5-flash','gemini-1.5-flash-8b'];
+  const contents=messages.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]}));
+  const body={contents,generationConfig:{temperature:temp,maxOutputTokens:maxTok}};
+  if(sys)body.systemInstruction={parts:[{text:sys}]};
+  for(const model of models){
+    try{
+      const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+      if(r.status===429||r.status===503){log(`Gemini/${model} rate limited, switching…`,'lwarn');await sleep(1000);continue}
+      if(r.status===400||r.status===403){const e=await r.json().catch(()=>({}));throw new Error('Gemini key invalid: '+(e.error?.message||r.status))}
+      if(!r.ok){await sleep(600);continue}
+      const d=await r.json();
+      const txt=d.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('').trim()||'';
+      if(!txt)continue;setModel('Gemini/'+model.replace('gemini-',''));return txt;
+    }catch(e){if(e.message.includes('invalid'))throw e}
+  }
+  throw new Error('QUOTA');
+}
+async function tryGroq(key,messages,sys,temp,maxTok){
+  const models=['llama-3.3-70b-versatile','llama-3.1-8b-instant','gemma2-9b-it'];
+  const msgs=sys?[{role:'system',content:sys},...messages]:messages;
+  for(const model of models){
+    try{
+      const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model,messages:msgs,temperature:temp,max_tokens:maxTok})});
+      if(r.status===429){log(`Groq/${model} rate limited, switching…`,'lwarn');await sleep(1200);continue}
+      if(r.status===401)throw new Error('Groq key invalid');
+      if(!r.ok){await sleep(600);continue}
+      const d=await r.json();
+      const txt=d.choices?.[0]?.message?.content?.trim()||'';
+      if(!txt)continue;setModel('Groq/'+model.split('-').slice(0,3).join('-'));return txt;
+    }catch(e){if(e.message.includes('invalid'))throw e}
+  }
+  throw new Error('QUOTA');
+}
+async function tryOR(key,messages,sys,temp,maxTok){
+  const models=['meta-llama/llama-3.3-70b-instruct:free','google/gemma-3-27b-it:free','mistralai/mistral-7b-instruct:free'];
+  const msgs=sys?[{role:'system',content:sys},...messages]:messages;
+  for(const model of models){
+    try{
+      const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key,'HTTP-Referer':'https://synthosurvey.app','X-Title':'SynthoSurvey'},body:JSON.stringify({model,messages:msgs,temperature:temp,max_tokens:maxTok})});
+      if(r.status===429||r.status===402){log(`OR/${model} rate limited…`,'lwarn');await sleep(1500);continue}
+      if(r.status===401)throw new Error('OpenRouter key invalid');
+      if(!r.ok){await sleep(600);continue}
+      const d=await r.json();
+      const txt=d.choices?.[0]?.message?.content?.trim()||'';
+      if(!txt)continue;setModel('OR/'+model.split('/').pop().split(':')[0]);return txt;
+    }catch(e){if(e.message.includes('invalid'))throw e}
+  }
+  throw new Error('QUOTA');
+}
+async function callAPI(messages,sys='',temp=0.7,maxTok=1800){
+  const gk=localStorage.getItem('ss_gem')||'';
+  const grk=localStorage.getItem('ss_grq')||'';
+  const ork=localStorage.getItem('ss_or')||'';
+  const providers=[];
+  if(gk)providers.push({n:'Gemini',fn:()=>tryGemini(gk,messages,sys,temp,maxTok)});
+  if(grk)providers.push({n:'Groq',fn:()=>tryGroq(grk,messages,sys,temp,maxTok)});
+  if(ork)providers.push({n:'OpenRouter',fn:()=>tryOR(ork,messages,sys,temp,maxTok)});
+  if(!providers.length)throw new Error('No API key found. Add a key in the sidebar.');
+  for(const p of providers){
+    try{return await p.fn()}
+    catch(e){
+      if(e.message==='QUOTA'){log(`${p.n} busy — trying next provider…`,'lwarn');continue}
+      throw e;
+    }
+  }
+  throw new Error('All providers busy. Wait 60 seconds or add another key.');
+}
+
+// ══ KEY TEST ═══════════════════════════════════════════════════
+function setStatus(cls,msg){
+  ['dot','dot-mob'].forEach(id=>{const d=document.getElementById(id);if(d)d.className='dot '+cls});
+  const el=document.getElementById('st-txt');if(el)el.textContent=msg;
+}
+async function testKeys(){
+  setStatus('try','Connecting…');
+  try{
+    await callAPI([{role:'user',content:'Say OK.'}],'',0.1,5);
+    setStatus('ok','Connected ✓ ('+document.getElementById('active-model').textContent+')');
+  }catch(e){setStatus('err',e.message.slice(0,55))}
+}
+async function silentTest(){
+  setStatus('try','Reconnecting…');
+  try{
+    await callAPI([{role:'user',content:'OK'}],'',0.1,5);
+    setStatus('ok','Connected ✓ ('+document.getElementById('active-model').textContent+')');
+  }catch(e){setStatus('err','Key error — check sidebar')}
+}
+
+// ══ INIT ═══════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded',()=>{
+  readHashKeys();
+  loadSavedKeys();
+  lang=localStorage.getItem('ss_lang')||'en';
+  applyLang();
+  onIncomeChange(2);
+  rebuildEventSelect();
+  loadSession();
+  const hasKey=!!(localStorage.getItem('ss_gem')||localStorage.getItem('ss_grq')||localStorage.getItem('ss_or'));
+  if(hasKey)silentTest();
+  // IntersectionObserver for nav highlighting
+  const observer=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        const id=e.target.id;
+        const map={step1:'nav-1',step2:'nav-2',step3:'nav-3',step4:'nav-4'};
+        if(map[id]){document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById(map[id])?.classList.add('active');}
+      }
+    });
+  },{threshold:0.3});
+  ['step1','step2','step3','step4'].forEach(id=>{const el=document.getElementById(id);if(el)observer.observe(el)});
+});
+
+// ══ STEP 1 ═════════════════════════════════════════════════════
+async function loadMarket(){
+  const country=document.getElementById('country').value.trim();
+  if(!country){showToast(lang==='ar'?'أدخل اسم الدولة':'Enter a country name','err');return}
+  setLoad('market',true);document.getElementById('mkt-result').style.display='none';
+  try{
+    const raw=await callAPI(
+      [{role:'user',content:`Market intelligence for: ${country}. ${lang==='ar'?'Include Arabic consumer context and provide cultural_events in Arabic.':''}`}],
+      'Output ONLY valid JSON (no markdown) with keys: country(string),currency(string),population(string),macro(object:inflation,currency_trend,political_stability),demographics(object:nationalities[],regions[],age_groups[],income_brackets[]),cultural_events(array of strings, min 8 events including religious holidays, shopping seasons, national events specific to this country). Be specific.',
+      0.2,1400
+    );
+    marketData=parseJSON(raw);marketData.country=country;
+    if(marketData.demographics?.nationalities?.length)popSel('nationality',marketData.demographics.nationalities);
+    if(marketData.demographics?.regions?.length)popSel('region',marketData.demographics.regions);
+    if(marketData.demographics?.income_brackets?.length){/* income now handled by slider */}
+    renderMarketSummary();
+    rebuildEventSelect();
+    // Show event pills
+    if(marketData.cultural_events?.length){
+      const pw=document.getElementById('event-pills-wrap');
+      const pc=document.getElementById('event-pills');
+      pc.innerHTML=marketData.cultural_events.slice(0,12).map(ev=>`<span class="event-pill" onclick="selectEventPill(this,'${esc(ev)}')">${esc(ev)}</span>`).join('');
+      pw.style.display='block';
+    }
+    document.getElementById('nav-1').classList.add('done');
+    saveSession();
+    showToast(`✓ ${country} loaded`,'ok');
+  }catch(e){showToast('Error: '+e.message,'err',5000)}
+  setLoad('market',false);
+}
+function renderMarketSummary(){
+  document.getElementById('mkt-ok').innerHTML=`✓ ${marketData.country} — ${marketData.currency}`;
+  const mktLabels=lang==='ar'
+    ?['الدولة','العملة','السكان','التضخم','اتجاه العملة','الاستقرار','الأحداث','الجنسيات','المناطق']
+    :['Country','Currency','Population','Inflation','Currency trend','Stability','Key events','Nationalities','Regions'];
+  const mktVals=[marketData.country,marketData.currency,marketData.population,marketData.macro?.inflation||'N/A',marketData.macro?.currency_trend||'N/A',marketData.macro?.political_stability||'N/A',(marketData.cultural_events||[]).slice(0,3).join(', '),(marketData.demographics?.nationalities||[]).slice(0,3).join(', '),(marketData.demographics?.regions||[]).slice(0,3).join(', ')];
+  document.getElementById('mkt-grid').innerHTML=mktLabels.map((l,i)=>`<div class="mkt-it"><div class="mkt-il">${l}</div><div class="mkt-iv">${esc(String(mktVals[i]||'—'))}</div></div>`).join('');
+  document.getElementById('mkt-result').style.display='block';
+  document.getElementById('sb-mkt').innerHTML=`<strong style="color:var(--tx)">${marketData.country}</strong><br><span style="font-size:10px">${marketData.currency} · ${marketData.macro?.inflation||''}</span>`;
+}
+function popSel(id,opts){const el=document.getElementById(id);if(el)el.innerHTML=opts.map(o=>`<option>${esc(o)}</option>`).join('')}
+function selectEventPill(el,val){
+  document.querySelectorAll('.event-pill').forEach(p=>p.classList.remove('selected'));
+  el.classList.add('selected');
+  const sel=document.getElementById('event-select');
+  // Find matching option or add it
+  let found=false;
+  for(const opt of sel.options){if(opt.value===val){sel.value=val;found=true;break;}}
+  if(!found){const o=new Option(val,val);sel.add(o,sel.options.length-1);sel.value=val;}
+  document.getElementById('event-other-row').style.display='none';
+}
+
+// ══ STEP 2 ═════════════════════════════════════════════════════
+async function discoverConcepts(){
+  if(!marketData){showToast(lang==='ar'?'حمّل بيانات السوق أولاً':'Load market data first (Step 1)','err');return}
+  const event=getEventValue();
+  if(!event){showToast(lang==='ar'?'اختر حدثاً أو أدخل حدثاً مخصصاً':'Select or enter a target event','err');return}
+  setLoad('discover',true);
+  const wrap=document.getElementById('con-accordion-wrap');
+  wrap.style.display='none';
+  try{
+    const raw=await callAPI(
+      [{role:'user',content:`Market: ${marketData.country} | Currency: ${marketData.currency} | Inflation: ${marketData.macro?.inflation} | Political stability: ${marketData.macro?.political_stability} | Event: "${event}" | ${lang==='ar'?'Respond with Arabic product names and descriptions.':''} Generate exactly 10 B2C product concepts.`}],
+      'Output ONLY valid JSON with key "concepts" = array of exactly 10 objects each with: title(string),description(string 1-2 sentences),price_range(string in local currency),channels(array max 3 strings),rationale(string 1 sentence why it works for this market). No markdown, no extra text.',
+      0.85,1600
+    );
+    const concepts=parseJSON(raw).concepts||[];
+    if(concepts.length===0)throw new Error('No concepts returned. Try again.');
+    document.getElementById('con-grid').innerHTML=concepts.map((c,i)=>`
+      <div class="con-card" onclick="pickConcept(${JSON.stringify(c.title||'')},${JSON.stringify(c.description||'')},${JSON.stringify(c.price_range||'')})">
+        <div class="con-num">CONCEPT ${i+1}</div>
+        <div class="con-t">${esc(c.title)}</div>
+        <div class="con-d">${esc(c.description)}</div>
+        <div class="con-meta">
+          <span class="tag tag-ac">${esc(c.price_range)}</span>
+          ${(c.channels||[]).map(ch=>`<span class="tag">${esc(ch)}</span>`).join('')}
+        </div>
+        <div style="font-size:9px;color:var(--tx3);margin-top:6px;font-style:italic">${esc(c.rationale)}</div>
+      </div>`).join('');
+    const cht=document.getElementById('con-hdr-title');if(cht)cht.textContent=t('con-hdr-title-t');
+    wrap.style.display='block';
+    // Auto-open accordion
+    document.getElementById('con-body').classList.add('open');
+    document.getElementById('con-chevron').classList.add('open');
+    document.getElementById('nav-2').classList.add('done');
+    showToast(lang==='ar'?'تم توليد 10 مفاهيم ✓':'10 concepts generated ✓','ok');
+  }catch(e){showToast('Error: '+e.message,'err',5000)}
+  setLoad('discover',false);
+}
+
+// ══ STEP 3: SUPREME COUNCIL ════════════════════════════════════
+async function runCouncil(){
+  const product=document.getElementById('product').value.trim();
+  const price=document.getElementById('price').value.trim();
+  if(!product||!price){showToast(lang==='ar'?'أدخل المنتج والسعر':'Fill in Product Concept and Target Price','err');return}
+  setLoad('run',true);logLines=[];
+  const s4=document.getElementById('step4');s4.style.display='block';s4.scrollIntoView({behavior:'smooth'});
+  document.getElementById('alog').innerHTML='';
+  // Skeleton loading
+  document.getElementById('met-row').innerHTML=`<div class="met" style="grid-column:1/-1"><div class="skeleton" style="height:28px;margin-bottom:8px;border-radius:4px"></div><div class="skeleton" style="height:12px;width:60%;margin:0 auto;border-radius:4px"></div></div>`;
+  ['pmf-bars','strat-grid','cv'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML=''});
+  const t0=Date.now();
+  const incomeLabel=getIncomeLabel();
+  const demo={
+    gender:document.getElementById('gender').value,
+    age:document.getElementById('age').value,
+    nationality:document.getElementById('nationality').value,
+    region:document.getElementById('region').value,
+    income:incomeLabel,
+    faith:document.getElementById('faith').value,
+    season:document.getElementById('season').value
+  };
+  const mkt=marketData||{country:'Unknown',currency:'USD',macro:{}};
+  const anchors=ANCHORS[lang];
+  const li=lang==='ar'?'اكتب الرواية وجميع المحتوى باللغة العربية بالكامل.':'Write all content in English.';
+  // Increase max tokens for Arabic
+  const maxTok=lang==='ar'?2400:1900;
+  log('Supreme Council: single-call analysis starting…','lrun');
+  try{
+    const sys=`You are the SynthoSurvey Supreme Council — 6 specialist AI agents running in parallel.
+
+CONSUMER DEMOGRAPHICS:
+${JSON.stringify(demo,null,2)}
+
+MARKET (${mkt.country}):
+Currency: ${mkt.currency} | Inflation: ${mkt.macro?.inflation||'N/A'} | Currency trend: ${mkt.macro?.currency_trend||'N/A'} | Stability: ${mkt.macro?.political_stability||'N/A'}
+
+PRODUCT: "${product}"
+PRICE: ${price}
+LANGUAGE INSTRUCTION: ${li}
+
+SSR ANCHORS (Likert 1→5, use SAME language as above):
+1. ${anchors[0]}
+2. ${anchors[1]}
+3. ${anchors[2]}
+4. ${anchors[3]}
+5. ${anchors[4]}
+
+Output ONLY this exact JSON structure. No markdown, no preamble, no trailing text:
+{
+  "rationale": "4-6 sentence first-person consumer voice. Ground it in: exact income bracket meaning for them, cultural/religious context, current season behavior, macro-economic reality, whether this product solves a real problem. No numeric score. Natural human voice.",
+  "economic": {"score": 0.0, "feedback": "one specific sentence about economic realism"},
+  "cultural": {"score": 0.0, "feedback": "one specific sentence about cultural or religious alignment"},
+  "price": {"score": 0.0, "feedback": "one specific sentence about price elasticity realism"},
+  "adversarial": {"flaws": ["specific flaw description"], "severity": 0.0},
+  "gtm": {
+    "confidence": 0.0,
+    "where_to_sell": "specific channels, platforms, store types for ${mkt.country}",
+    "when_to_launch": "optimal timing, lead time, seasonal window",
+    "marketing": "specific messaging angles, influencer type, media channels",
+    "pricing_model": "exact pricing structure, BNPL options, bundle ideas",
+    "launch_day": "best day of week, time of day with rationale"
+  },
+  "ssr": [0.0, 0.0, 0.0, 0.0, 0.0]
+}
+
+SCORING RULES:
+- ssr[i] = how semantically similar "rationale" is to anchor i (0.0 to 1.0)
+- agent5 adversarial MUST genuinely critique agent1 — find real flaws or positivity bias
+- confidence = avg(economic.score, cultural.score, price.score) minus (adversarial.severity × 0.35)
+- All scores between 0.0 and 1.0`;
+
+    const raw=await callAPI([{role:'user',content:'Execute the Supreme Council analysis now.'}],sys,0.72,maxTok);
+    log('Response received — parsing…','lrun');
+
+    const r=parseJSON(raw);
+    if(!r.rationale){
+      // Try to recover individual fields
+      throw new Error('Response JSON malformed. The AI may have exceeded token limit. Try with a shorter product description.');
+    }
+
+    const a2={score:.75,feedback:'',...(r.economic||{})};
+    const a3={score:.75,feedback:'',...(r.cultural||{})};
+    const a4={score:.75,feedback:'',...(r.price||{})};
+    const a5={flaws:[],severity:.2,...(r.adversarial||{})};
+    const gtm=r.gtm||{};
+    [a2,a3,a4].forEach(a=>a.score=Math.min(1,Math.max(0,parseFloat(a.score)||.75)));
+    a5.severity=Math.min(1,Math.max(0,parseFloat(a5.severity)||.2));
+
+    log(`Agent 1 ✓ rationale (${(r.rationale||'').length} chars)`,'lok');
+    log(`Agent 2 economic: ${a2.score.toFixed(2)} — ${a2.feedback}`,a2.score>=.7?'lok':'lwarn');
+    log(`Agent 3 cultural:  ${a3.score.toFixed(2)} — ${a3.feedback}`,a3.score>=.7?'lok':'lwarn');
+    log(`Agent 4 price:     ${a4.score.toFixed(2)} — ${a4.feedback}`,a4.score>=.7?'lok':'lwarn');
+    log(`Agent 5 adversarial: severity ${a5.severity.toFixed(2)} — ${(a5.flaws||[]).join('; ')||'no major flaws'}`,a5.severity<=.35?'lok':'lwarn');
+
+    const base=(a2.score+a3.score+a4.score)/3;
+    const conf=Math.min(1,Math.max(0,parseFloat(gtm.confidence)||base-a5.severity*.35));
+    log(`Agent 6 ✓ GTM synthesized. Confidence: ${(conf*100).toFixed(1)}%`,'lok');
+
+    // SSR pure math (independent of LLM self-scoring — use ssr as input weights, not final scores)
+    let rawSims=Array.isArray(r.ssr)?r.ssr.map(s=>parseFloat(s)||0):[.1,.15,.25,.3,.2];
+    while(rawSims.length<5)rawSims.push(.1);
+    rawSims=rawSims.slice(0,5);
+    const mn=Math.min(...rawSims),adj=rawSims.map(s=>s-mn),tot=adj.reduce((a,b)=>a+b,0)||1;
+    const pmf=adj.map(v=>v/tot);
+    const meanPI=pmf.reduce((s,v,i)=>s+v*(i+1),0);
+    log(`SSR ✓ Mean PI = ${meanPI.toFixed(2)}/5.0`,'lok');
+
+    const elapsed=((Date.now()-t0)/1e3).toFixed(1);
+    log(`Done in ${elapsed}s — 1 API call.`,'lok');
+
+    lastResults={confidence:conf,ssr:{pmf,meanPI},gtm,rationale:r.rationale,demo,elapsed,product,price,market:mkt.country};
+    renderResults(lastResults);
+    saveSession();
+    document.getElementById('nav-3').classList.add('done');
+    document.getElementById('nav-4').classList.add('done');
+    showToast(lang==='ar'?`اكتمل التحليل — ثقة ${(conf*100).toFixed(0)}%`:`Analysis complete — ${(conf*100).toFixed(0)}% confidence`,'ok');
+
+  }catch(e){
+    log('ERROR: '+e.message,'lerr');
+    document.getElementById('met-row').innerHTML=`<div style="grid-column:1/-1;color:var(--re);font-size:12px;padding:10px">✗ ${esc(e.message)}</div>`;
+    showToast(e.message,'err',6000);
+  }
+  setLoad('run',false);
+}
+
+// ══ RENDER RESULTS ═════════════════════════════════════════════
+function renderResults({confidence,ssr,gtm,rationale,elapsed}){
+  const cp=(confidence*100).toFixed(1),pi=ssr.meanPI.toFixed(2);
+  const cc=confidence>=.9?'vg':confidence>=.7?'vy':'vr';
+  const pc=ssr.meanPI>=3.5?'vg':ssr.meanPI>=2.5?'vy':'vr';
+  document.getElementById('met-row').innerHTML=`
+    <div class="met"><div class="met-v ${cc}">${cp}%</div><div class="met-l">${t('met-conf')}</div></div>
+    <div class="met"><div class="met-v ${pc}">${pi}/5.0</div><div class="met-l">${t('met-pi')}</div></div>
+    <div class="met"><div class="met-v vb">${elapsed}s</div><div class="met-l">${t('met-time')}</div></div>`;
+  const bc=['#ef4444','#f97316','#eab308','#22c55e','#10b981'];
+  const bl=[t('bar-1'),t('bar-2'),t('bar-3'),t('bar-4'),t('bar-5')];
+  document.getElementById('pmf-bars').innerHTML=ssr.pmf.map((p,i)=>`
+    <div class="brow">
+      <div class="blbl">${bl[i]}</div>
+      <div class="btrk"><div class="bfil" style="width:${(p*100).toFixed(1)}%;background:${bc[i]}">${p>.1?(p*100).toFixed(0)+'%':''}</div></div>
+      <div class="bpct">${(p*100).toFixed(1)}%</div>
+    </div>`).join('');
+  const mktLabels=lang==='ar'
+    ?[['أين تبيع',gtm.where_to_sell],['متى تطلق',gtm.when_to_launch],['التسويق',gtm.marketing],['التسعير',gtm.pricing_model],['يوم الإطلاق',gtm.launch_day]]
+    :[[t('strat-where'),gtm.where_to_sell],[t('strat-when'),gtm.when_to_launch],[t('strat-mkt'),gtm.marketing],[t('strat-price'),gtm.pricing_model],[t('strat-day'),gtm.launch_day]];
+  document.getElementById('strat-grid').innerHTML=mktLabels.map(([l,v])=>`<div class="strat"><div class="strat-l">${l}</div><div class="strat-v">${esc(v||'—')}</div></div>`).join('');
+  document.getElementById('cv').textContent=rationale;
+}
+
+// ══ COPY VOICE ══════════════════════════════════════════════════
+function copyVoice(){
+  const txt=document.getElementById('cv').textContent;
+  if(!txt)return;
+  navigator.clipboard.writeText(txt).then(()=>{
+    showToast(lang==='ar'?'تم النسخ ✓':'Copied to clipboard ✓','ok');
+  }).catch(()=>{
+    // Fallback
+    const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+    showToast(lang==='ar'?'تم النسخ ✓':'Copied ✓','ok');
+  });
+}
+
+// ══ EXPORT ═════════════════════════════════════════════════════
+function exportJSON(){
+  if(!lastResults)return;
+  const b=new Blob([JSON.stringify(lastResults,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download=`synthosurvey-${lastResults.market||'export'}-${Date.now()}.json`;a.click();
+}
+</script>
+</body>
+</html>

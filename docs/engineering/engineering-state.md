@@ -1,7 +1,3 @@
-# APS Engineering State
-
-Build: APS-GENESIS-0001
-
-Completion: 2.5%
-
-Status: Genesis scaffold generated.
+# Engineering State
+Build: 0.2.0
+Completion: 12.0%

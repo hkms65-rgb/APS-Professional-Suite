@@ -1,3 +1,7 @@
 # API Registry
-
-No public APIs implemented yet.
+- GET /api/health
+- GET /api/modules
+- POST /api/realestate/properties
+- GET /api/realestate/summary
+- POST /api/crm/accounts
+- GET /api/crm/accounts

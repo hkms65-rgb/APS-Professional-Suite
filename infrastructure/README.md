@@ -1,3 +1,1 @@
 # Infrastructure
-
-APS infrastructure workspace.

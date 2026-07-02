@@ -1,11 +1,27 @@
 # APS Professional Suite
 
-APS Professional Suite is an Enterprise Operating System (EOS): a unified, autonomous platform integrating people, business processes, data, AI, and external services into one intelligent operating environment.
+APS Professional Suite is an Enterprise Operating System.
 
-## Current Status
+## Build 0.2.0
 
-Genesis repository scaffold generated.
+This build adds:
+- Enterprise Kernel
+- Platform Runtime
+- SQLite persistence
+- Identity model
+- Organization model
+- Real Estate & Facilities service/API
+- CRM service/API
+- Market Intelligence app integration
+- FastAPI backend
+- Static command center
+- Engineering docs
+- Tests and validation
 
-## Source of Truth
+## Run
 
-This repository is the authoritative source for code, engineering memory, architecture, roadmap, registries, release history, and validation evidence.
+```bash
+pip install -e . pytest fastapi uvicorn
+python -m pytest tests -q
+uvicorn aps_api.main:app --reload
+```
