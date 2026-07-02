@@ -17,15 +17,15 @@ from aps.services import (
 from aps.storage import CRMRepository, Database, DatabaseConfig, FinanceRepository
 
 
-app = FastAPI(title='APS Professional Suite', version='0.3.0')
+config = RuntimeConfig.from_env()
+app = FastAPI(title=config.app_name, version=config.version)
 app.mount('/static', StaticFiles(directory='web/static'), name='static')
 app.mount('/apps', StaticFiles(directory='web/apps', html=True), name='apps')
 
-config = RuntimeConfig()
 kernel = build_default_kernel()
 kernel.start()
 
-database = Database(DatabaseConfig(path='data/aps.sqlite3'))
+database = Database(DatabaseConfig(path=config.database_path))
 database.initialize()
 
 finance = FinanceService(FinanceRepository(database))
@@ -65,7 +65,12 @@ def index():
 
 @app.get('/api/health')
 def health():
-    return {'status': 'ok', 'version': config.version, 'kernel': kernel.status.value}
+    return {
+        'status': 'ok',
+        'version': config.version,
+        'environment': config.environment,
+        'kernel': kernel.status.value,
+    }
 
 
 @app.get('/api/modules')
