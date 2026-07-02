@@ -32,14 +32,22 @@ class HRService:
 
 
 class WarehouseService:
-    def __init__(self):
+    def __init__(self, repository=None):
+        self.repository = repository
         self.items = {}
 
     def receive_item(self, sku, qty):
+        if qty < 0:
+            raise ValueError('Received quantity cannot be negative')
+        if self.repository is not None:
+            item = self.repository.receive_item(sku, qty)
+            return {'sku': item.sku, 'qty': item.quantity}
         self.items[sku] = self.items.get(sku, 0) + qty
         return {'sku': sku, 'qty': self.items[sku]}
 
     def inventory_total(self):
+        if self.repository is not None:
+            return self.repository.inventory_total()
         return sum(self.items.values())
 
 
